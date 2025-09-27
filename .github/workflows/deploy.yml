@@ -17,7 +17,10 @@ jobs:
       - name: Destroy old app if exists
         run: |
           if flyctl apps list | grep -q "nz-white-feather-3990"; then
-            flyctl apps destroy nz-white-feather-3990 -y || true
+            echo "Old app exists, destroying..."
+            flyctl apps destroy nz-white-feather-3990 -y
+          else
+            echo "No existing app found, skipping destroy."
           fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -37,10 +40,13 @@ jobs:
           COUNT=$(echo "$MACHINES" | wc -l)
           if [ "$COUNT" -gt 1 ]; then
             # 保留最后一台（最新），删除其他机器
+            echo "Multiple machines found, keeping the latest and removing others..."
             echo "$MACHINES" | head -n -1 | while read -r ID; do
+              echo "Removing machine $ID"
               flyctl machines remove -a nz-white-feather-3990 "$ID" -y
             done
+          else
+            echo "Only one machine found, nothing to clean up."
           fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
