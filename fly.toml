@@ -1,0 +1,27 @@
+app = "nz-white-feather-3990"
+primary_region = "sin"
+
+[build]
+image = "ghcr.io/nezhahq/nezha:v1.12.4"
+
+[env]
+PORT = "8008"
+
+[http_service]
+auto_start_machines = true
+auto_stop_machines = true
+force_https = true
+internal_port = 8_008
+min_machines_running = 0
+processes = [ "app" ]
+
+  [http_service.http_options]
+  h2_backend = true
+
+[[mounts]]
+destination = "/dashboard/data"
+source = "dashboard_data"
+
+[[vm]]
+memory_mb = 256
+size = "shared-cpu-1x"
