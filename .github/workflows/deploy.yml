@@ -14,16 +14,18 @@ jobs:
       - name: Set up Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      
       - name: Destroy old app if exists
         run: |
-          if flyctl apps list | grep -q "nz-white-feather-3990"; then
+          if flyctl apps show nz-white-feather-3990 > /dev/null 2>&1; then
             echo "Old app exists, destroying..."
             flyctl apps destroy nz-white-feather-3990 -y
           else
-            echo "No existing app found, skipping destroy."
+            echo "App nz-white-feather-3990 does not exist, skipping destroy."
           fi
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
 
       - name: Deploy app
         run: |
