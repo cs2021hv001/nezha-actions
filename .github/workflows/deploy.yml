@@ -17,9 +17,9 @@ jobs:
       
       - name: Destroy old app if exists
         run: |
-          if flyctl apps show nz-white-feather-3990 > /dev/null 2>&1; then
+          if flyctl apps list --json | jq -e '.[] | select(.Name=="nz-white-feather-3990")' > /dev/null; then
             echo "Old app exists, destroying..."
-            flyctl apps destroy nz-white-feather-3990 -y
+            flyctl apps destroy nz-white-feather-3990 -y || echo "Destroy failed but continuing..."
           else
             echo "App nz-white-feather-3990 does not exist, skipping destroy."
           fi
