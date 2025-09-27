@@ -2,7 +2,7 @@ app = "nz-white-feather-3990"
 primary_region = "sin"
 
 [build]
-image = "ghcr.io/nezhahq/nezha:v1.12.4"
+image = "ghcr.io/nezhahq/nezha:v1.13.2"
 
 [env]
 PORT = "8008"
