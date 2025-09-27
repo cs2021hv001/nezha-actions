@@ -1,0 +1,46 @@
+```yaml
+name: Deploy to Fly.io
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Destroy old app if exists
+        run: |
+          if flyctl apps list | grep -q "nz-white-feather-3990"; then
+            flyctl apps destroy nz-white-feather-3990 -y || true
+          fi
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Deploy app
+        run: |
+          flyctl deploy --remote-only --yes
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Keep only latest machine
+        run: |
+          # 等待机器启动
+          sleep 20
+          # 获取机器列表并按 created_at 排序（最新的在最后）
+          MACHINES=$(flyctl machines list -a nz-white-feather-3990 --json | jq -r 'sort_by(.created_at) | .[].id')
+          COUNT=$(echo "$MACHINES" | wc -l)
+          if [ "$COUNT" -gt 1 ]; then
+            # 保留最后一台（最新），删除其他机器
+            echo "$MACHINES" | head -n -1 | while read -r ID; do
+              flyctl machines remove -a nz-white-feather-3990 "$ID" -y
+            done
+          fi
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+```
